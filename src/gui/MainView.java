@@ -1,30 +1,22 @@
-package gui;
+package GUI;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.Random;
 import javax.swing.*;
 
-import ai.AlphaBetaPrunning;
-import caro.*;
-import util.Function;
-import util.ImageCaro;
+import ClassesOOP.*;
 
 public class MainView extends JPanel implements MouseListener, MouseMotionListener {
 
-    public int TYPE ;
+    public static int TYPE = 0;/// type of game playerssss
     public static final int SIZEX = 16;
     public static final int SIZEY = 16;
     public static final int OFFSET = 30;
-    private static final int WEIGHT = 600, HEIGHT = 600;
     private static final int SQUAD = 32;
-    public static final int DEPTH = 2;
     private static GameState gameState;
     private int victory;
-    private int drawX;
-    private int drawY;
-    public static boolean ok = false;
-    public static JButton e =new JButton("Trans Rules ");
 
 
     private JPanel p1 = new JPanel(), p2 = new JPanel();
@@ -33,8 +25,17 @@ public class MainView extends JPanel implements MouseListener, MouseMotionListen
     public static void main(String[] ags) {
         JFrame frame = new JFrame();
         JPanel pannel = new JPanel();
+        JPanel bottomPannel = new JPanel();
+
+
+
+
+        bottomPannel.setBackground(Color.gray);
+        bottomPannel.setBounds(0,580,580+200,30);
         pannel.setBackground(Color.red);
-        pannel.setBounds(580,0,250,580);
+        pannel.setBounds(580,0,200,580);
+
+        /////////////////////// xong roi
 
         JButton a =new JButton("Reset");
         a.setBounds(0,100,200,80);
@@ -42,10 +43,16 @@ public class MainView extends JPanel implements MouseListener, MouseMotionListen
             @Override
             public void actionPerformed(ActionEvent e) {
                 gameState.Reset();
+                if (TYPE == 0){
+                    gameState = new GameState(Player.OPLAYER);
+                    Random random = new Random();
+                    gameState.addSquare(new Square( random.nextInt(SIZEX), random.nextInt(16),true));
+                }
                 frame.repaint();
 
             }
         });
+        /////////////////////// xong roi
         JButton b=new JButton("Undo");
         b.setBounds(0,200,200,80);
         b.addActionListener(new ActionListener() {
@@ -55,6 +62,9 @@ public class MainView extends JPanel implements MouseListener, MouseMotionListen
                 frame.repaint();
             }
         });
+
+
+
         JButton c =new JButton("Save");
         c.setBounds(0,300,200,80);
         c.addActionListener(new ActionListener() {
@@ -62,7 +72,6 @@ public class MainView extends JPanel implements MouseListener, MouseMotionListen
             public void actionPerformed(ActionEvent e) {
                 gameState.Reset();
                 frame.repaint();
-
             }
         });
         JButton d =new JButton("Resume");
@@ -75,21 +84,46 @@ public class MainView extends JPanel implements MouseListener, MouseMotionListen
 
             }
         });
-        e.setBounds(0,400,200,80);
+
+
+
+
+        /////////////////////// xong roi
+        JButton e =new JButton("Chang Mode");
+        e.setBounds(0,480,200,40);
         e.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 gameState.Reset();
+                TYPE = ((TYPE == 0) ? 1 : 0);
+                if (TYPE == 0){
+                    gameState = new GameState(Player.OPLAYER);
+                    Random random = new Random();
+                    gameState.addSquare(new Square( random.nextInt(SIZEX), random.nextInt(SIZEX),true));
+                }
                 frame.repaint();
 
             }
         });
 
 
+
         JLabel label1 = new JLabel();
-        pannel.add(label1);
-        label1.setText("Bảng Điều Khiển");
-        label1.setBounds(0,0,0,0);
+
+        label1.setText("Panel:");
+
+        label1.setBounds(50,0,50,50);
+        label1.setSize(50,100);
+
+
+
+
+
+        JLabel label2 = new JLabel();
+        label2.setText("Designed by 10Real!");
+        label2.setBounds(0,0,0,0);
+        bottomPannel.add(label2);
+
 
 
 
@@ -105,13 +139,20 @@ public class MainView extends JPanel implements MouseListener, MouseMotionListen
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        frame.add(bottomPannel);
+
         frame.add(pannel);
+
 
         frame.add(new MainView());
         pannel.add(a);
         pannel.add(b);
         pannel.add(c);
         pannel.add(d);
+        pannel.add(e);
+        pannel.add(label1);
+
+
 
 
         // pannel.add(new MainView());
@@ -123,9 +164,10 @@ public class MainView extends JPanel implements MouseListener, MouseMotionListen
     public MainView() {
         this.setBounds(0,0,580,580);
         this.setBackground(Color.yellow);
-        gameState = new GameState(Player.BLACK);
+        gameState = new GameState(Player.OPLAYER);
         victory = -1;
-        gameState.addSquare(new Square(0, 0,true));
+        Random random = new Random();
+        gameState.addSquare(new Square( random.nextInt(SIZEX), random.nextInt(SIZEX),true));
         addMouseMotionListener(this);
         addMouseListener(this);
     }
@@ -161,27 +203,36 @@ public class MainView extends JPanel implements MouseListener, MouseMotionListen
 
 
         ///////////////
-        /*
+
         Font defaultFont = g.getFont();
         switch (victory) {
             case 1:
                 g.setFont(new Font(defaultFont.getFontName(), 1, 30));
-                g.drawString("AI (BLACK) wins!", 50, 50);
+                g.drawString("Player 1 WINS!",580/2, 570);
                 g.setFont(defaultFont);
+                victory = -1;
                 break;
             case 2:
                 g.setFont(new Font(defaultFont.getFontName(), 1, 30));
-                g.drawString("HUMAN (WHITE) wins!", 50, 50);
+                g.drawString("Player 2 WINS!", 580/2, 570);
                 g.setFont(defaultFont);
+                victory = -1;
                 break;
             case 0:
                 g.setFont(new Font(defaultFont.getFontName(), 1, 30));
-                g.drawString("DRAW!", 50, 50);
+                g.drawString("FULL roi!", 580/2, 570);
                 g.setFont(defaultFont);
+                victory = -1;
                 break;
             default:
+                g.setFont(new Font(defaultFont.getFontName(), 1, 30));
+                g.drawString("Playing Mode:" + ((TYPE == 1)? "Human" : "Computer"), 380/2, 570);
+                g.setFont(defaultFont);
+
                 break;
-        }*/
+        }
+
+
 
         ///////////////
     }
@@ -199,25 +250,14 @@ public class MainView extends JPanel implements MouseListener, MouseMotionListen
         Square square = new Square(coordX, coordY,true);
 
 
-        if (gameState.getCurrentPlayer() == Player.WHITE && e.getButton() == 1) {
-            int[][] board = gameState.getBoard();
-            if (board[coordX][coordY] == 0) {
-                gameState.addSquare(square);/**
-                Pair pair = AlphaBetaPrunning.search(gameState);
-                if (pair.getSquare() == null) {
-                    if (Function.evaluate(gameState, Player.WHITE) >= 10000) {
-                        victory = 2;
-                    } else {
-                        victory = 0;
-                    }
-                } else {
-                    gameState.addSquare(pair.getSquare());
-                    if (Function.evaluate(gameState, Player.BLACK) >= 10000) {
-                        victory = 1;
-                    }
-                }*/
+        if (gameState.getCurrentPlayer() == Player.XPLAYER && e.getButton() == 1) {
+            int[][] board = gameState.getBoard();            if (board[coordX][coordY] == 0) {
+                gameState.addSquare(square);
+                 //////////////////////////////////////////////////////////
+               //// FUNCTION TO PLAY vs AI
+                /////////////////////////////////////////////////////////////
             }
-        }else if (gameState.getCurrentPlayer() == Player.BLACK && e.getButton() == 1){
+        }else if (gameState.getCurrentPlayer() == Player.OPLAYER && e.getButton() == 1 && TYPE == 1){
             int[][] board = gameState.getBoard();
             if (board[coordX][coordY] == 0) {
                 gameState.addSquare(square);}
@@ -231,7 +271,6 @@ public class MainView extends JPanel implements MouseListener, MouseMotionListen
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        repaint();
 
     }
 
