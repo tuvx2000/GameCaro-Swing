@@ -1,4 +1,4 @@
-package GUI;
+package gui;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -6,17 +6,20 @@ import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.*;
 
-import ClassesOOP.*;
+import ai.AlphaBetaPrunning;
+import caro.*;
+import util.Function;
 
 public class MainView extends JPanel implements MouseListener, MouseMotionListener {
 
-    public static int TYPE = 0;/// type of game playerssss
+    public static int TYPE = 0;/// type of playerssss
     public static final int SIZEX = 16;
     public static final int SIZEY = 16;
     public static final int OFFSET = 30;
     private static final int SQUAD = 32;
+   // public static final int DEPTH = 2;
     private static GameState gameState;
-    private int victory;
+    private int victory= -1;
 
 
     private JPanel p1 = new JPanel(), p2 = new JPanel();
@@ -165,7 +168,6 @@ public class MainView extends JPanel implements MouseListener, MouseMotionListen
         this.setBounds(0,0,580,580);
         this.setBackground(Color.yellow);
         gameState = new GameState(Player.OPLAYER);
-        victory = -1;
         Random random = new Random();
         gameState.addSquare(new Square( random.nextInt(SIZEX), random.nextInt(SIZEX),true));
         addMouseMotionListener(this);
@@ -251,16 +253,35 @@ public class MainView extends JPanel implements MouseListener, MouseMotionListen
 
 
         if (gameState.getCurrentPlayer() == Player.XPLAYER && e.getButton() == 1) {
-            int[][] board = gameState.getBoard();            if (board[coordX][coordY] == 0) {
+            int[][] board = gameState.getBoard();
+            if (board[coordX][coordY] == 0) {
                 gameState.addSquare(square);
+
+                checkwin();
                  //////////////////////////////////////////////////////////
-               //// FUNCTION TO PLAY vs AI
+                if (TYPE == 0){
+                    Pair pair = AlphaBetaPrunning.search(gameState);
+                    if (pair.getSquare() == null) {
+                        if (Function.evaluate(gameState, Player.XPLAYER) >= 10000) {
+                            victory = 2;
+                        } else {
+                            victory = 0;
+                        }
+                    } else {
+                        gameState.addSquare(pair.getSquare());
+                        if (Function.evaluate(gameState, Player.OPLAYER) >= 10000) {
+                            victory = 1;
+                        }
+                    }
+                }
                 /////////////////////////////////////////////////////////////
             }
         }else if (gameState.getCurrentPlayer() == Player.OPLAYER && e.getButton() == 1 && TYPE == 1){
             int[][] board = gameState.getBoard();
             if (board[coordX][coordY] == 0) {
-                gameState.addSquare(square);}
+                gameState.addSquare(square);
+                checkwin();
+            }
 
         }
 
@@ -268,6 +289,16 @@ public class MainView extends JPanel implements MouseListener, MouseMotionListen
 
         repaint();
     }
+
+    public void checkwin(){
+        if (Function.evaluate(gameState, Player.XPLAYER) >= 10000) {
+            victory = 2;
+        }
+        if (Function.evaluate(gameState, Player.OPLAYER) >= 10000) {
+            victory = 1;
+        }
+    }
+
 
     @Override
     public void mouseMoved(MouseEvent e) {

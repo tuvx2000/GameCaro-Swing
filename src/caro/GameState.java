@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import gui.MainView;
+import util.Function;
 
 public class GameState {
 	private Player currentPlayer;
@@ -12,15 +13,11 @@ public class GameState {
 
 
 
-
 	public GameState(Player currentPlayer) {
 		this.currentPlayer = currentPlayer;
 		move = new ArrayList<Piece>();
-		/*
-		 * (1, 1) -> (SIZEX, SIZEY)
-		 */
-		board = new int[MainView.SIZEX][MainView.SIZEY];
 
+		board = new int[MainView.SIZEX][MainView.SIZEY];
 	}
 
 	public void addSquare(Square square) {
@@ -92,17 +89,17 @@ public class GameState {
 		this.board = board;
 	}
 	public void Reset(){
-		currentPlayer = Player.BLACK;
+		currentPlayer = Player.OPLAYER;
 		move = new ArrayList<Piece>();
 		board = new int[MainView.SIZEX][MainView.SIZEY];
 
 	}
 
 	public void GoBack(){
-				if(currentPlayer == Player.BLACK){
-					currentPlayer = Player.WHITE;
+				if(currentPlayer == Player.OPLAYER){
+					currentPlayer = Player.XPLAYER;
 				}else
-					currentPlayer = Player.BLACK;
+					currentPlayer = Player.OPLAYER;
 
 		board[move.get(move.size()-1).getSquare().getCoordX()][move.get(move.size()-1).getSquare().getCoordY()] = 0;
 		move.remove(move.size() - 1);

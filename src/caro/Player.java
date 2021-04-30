@@ -4,7 +4,8 @@ import java.awt.Image;
 import util.ImageCaro;;
 
 public enum Player {
-	BLACK("black", "BLACK", 1), WHITE("white", "WHITE", 2);
+	OPLAYER("black", "BLACK", 1),
+	XPLAYER("white", "WHITE", 2);
 
 	private Image image;
 	private String typeColor;
@@ -14,7 +15,6 @@ public enum Player {
 
 	Player(String ImgName, String typeColor, int hashValue) {
 		this.image = help.getImage(ImgName);
-		this.typeColor = typeColor;
 		this.hashValue = hashValue;
 	}
 
@@ -31,8 +31,8 @@ public enum Player {
 	}
 
 	public Player getOpponent() {
-		if (this == BLACK)
-			return Player.WHITE;
-		return Player.BLACK;
+		if (this == OPLAYER)
+			return Player.XPLAYER;
+		return Player.OPLAYER;
 	}
 }

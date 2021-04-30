@@ -14,7 +14,6 @@ public class Function {
 	public static final int[] BROKENTHREEVALUE2 = { 93, 186 };
 	public static final int[] TWOVALUE1 = { 4, 8 };
 	public static final int[] TWOVALUE2 = { 10, 20 };
-	public static final int[] TWOVALUE3 = { 10, 20 };
 	public static final int[] weight = { 10000, 3000, 30, 12, 12, 6 };
 	public static final int[] POW = { 1, 3, 9, 27, 81, 243, 729, 2187, 6561, 19683, 59049, 177147, 531441, 1594323,
 			4782969 };
@@ -40,64 +39,43 @@ public class Function {
 	}
 
 	public static void hashBoard(int[][] board) {
-		/*
-		 * Hash horizontal and vertical
-		 */
+
 		for (int i = 0; i < board.length; i++) {
-			// System.out.println(board.length - 1 + " " + i);
 			hashRow[i][0] = board[i][0];
 			hashColum[i][0] = board[0][i];
 			for (int j = 1; j < board[i].length; j++) {
 				hashRow[i][j] = hashRow[i][j - 1] * 3 + board[i][j];
-				// System.out.print(board[i][j] + " ");
 				hashColum[i][j] = hashColum[i][j - 1] * 3 + board[j][i];
 			}
-			// System.out.println();
 		}
-
-		/*
-		 * Hash diagonal
-		 */
 
 		for (int i = 0; i < board.length - 1; i++) {
 			hashDia[numberDia][0] = board[i][0];
 			for (int j = 1; j < board.length - i; j++) {
 				hashDia[numberDia][j] = hashDia[numberDia][j - 1] * 3 + board[i + j][j];
-				//System.out.print(hashDia[numberDia][j] + " ");
 			}
-			//System.out.println();
 			numberDia++;
 		}
-		//System.out.println("NumberDia = " + numberDia);
 		for (int i = 0; i < board.length - 1; i++) {
 			hashDia[numberDia][0] = board[i][board.length - 1];
 			for (int j = 1; j < board.length - i; j++)  {
 				hashDia[numberDia][j] = hashDia[numberDia][j - 1] * 3 + board[i + j][board.length - 1 - j];
-				//System.out.print(hashDia[numberDia][j] + " ");
 			}
 			numberDia++;
-			//System.out.println();
 		}
-		//System.out.println("NumberDia = " + numberDia);
 		for (int j = 1; j < board[0].length - 1; j++) {
 			hashDia[numberDia][0] = board[0][j];
 			for (int i = 1; i < board[0].length - j; i++) {
-				// System.out.println(board[i][i + j] + " ");
 				hashDia[numberDia][i] = hashDia[numberDia][i - 1] * 3 + board[i][i + j];
-			//	System.out.print(hashDia[numberDia][i] + " ");
 			}
-			//System.out.println();
 			numberDia++;
 		}
-		//System.out.println("NumberDia = " + numberDia);
 		for (int j =1; j < board[0].length - 1; j++) {
 			hashDia[numberDia][0] = board[0][board.length - 1 - j];
 			for (int i = 1; i < board.length - j; i++) {
 				hashDia[numberDia][i] = hashDia[numberDia][i - 1] * 3 + board[i][board.length - 1 - (i + j)];
-			//	System.out.print(hashDia[numberDia][i] + " ");
 			}
 			numberDia++;
-			//System.out.println();
 		}
 	}
 
@@ -221,13 +199,7 @@ public class Function {
 		}
 	}
 
-	public static void computeThreatSingle(int[][] board, int index) {
-		if (numberFive + numberStraightFour + numberFour + numberThree + numberBrokenThree + numberTwo == 0)
-			for (int i = 0; i < board.length; i++)
-				for (int j = 0; j < board[i].length; j++)
-					if (board[i][j] == index)
-						numberSingle++;
-	}
+
 
 	public static boolean isHaveThreat() {
 		return isHaveThreat;
@@ -240,7 +212,6 @@ public class Function {
 	public static int evaluate(GameState game, Player player) {
 		int id = player.getHashValue() - 1;
 		int[][] B = game.getBoard();
-		//int id = 0;
 		init();
 		hashBoard(B);
 		computeThreatOnRowOrColum(B, id, hashRow);
@@ -249,24 +220,12 @@ public class Function {
 		computeThreatOnDiagonal(B, id, MainView.SIZEX - 2, 0, MainView.SIZEX - 1);
 		computeThreatOnDiagonal(B, id, 2*MainView.SIZEX - 3, 1, MainView.SIZEX - 1);
 		computeThreatOnDiagonal(B, id, 3*MainView.SIZEX - 5, 1, MainView.SIZEX - 1);
-		//computeThreatSingle(B, id + 1);
 		int f = numberFive * weight[0] + numberStraightFour * weight[1] + numberFour * weight[2]
 				+ numberThree * weight[3] + numberBrokenThree * weight[4]
 				+ numberTwo * weight[5];
-             //   System.out.println(f);
 		return f;
 
-//		 System.out.println("NumberDia = " + numberDia);
-//		 System.out.println("NumberFiveInRow = " + numberFive);
-//		 System.out.println("NumberStraightFour = " + numberStraightFour);
-//		 System.out.println("NumberFourInRow = " + numberFour);
-//		 System.out.println("NumberThreeInRow = " + numberThree);
-//		 System.out.println("NumberBrokenThree = " + numberBrokenThree);
-//		 System.out.println("NumberTwoInRow = " + numberTwo);
-//		 System.out.println("NumberSingle = " + numberSingle);
-//		 return 0;
+
 	}
-//	public static void main(String[] agrs) {
-//		evaluate(new GameState(Player.BLACK), Player.BLACK);
-//	}
+
 }

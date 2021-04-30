@@ -5,6 +5,7 @@ import java.util.Collections;
 
 import caro.GameState;
 import caro.Pair;
+
 import caro.Player;
 import caro.Square;
 import util.Function;
@@ -12,14 +13,15 @@ import util.Function;
 public class AlphaBetaPrunning {
 
     public static int cnt = 0;
-    public static final int MAXDEPTH = 3;
+    public static final int MAXDEPTH = 2;
 
     public static Pair search(GameState game) {
-        if (game.getCurrentPlayer() == Player.BLACK) {
+      //  if (game.getCurrentPlayer() == Player.BLACK)
+        {
             return maxValue(game, Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
-        } else {
+        }/* else {
             return minValue(game, Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
-        }
+        }*/
     }
     
     public static Pair maxValue(GameState game, int alpha, int beta, int depth) {
@@ -100,16 +102,16 @@ public class AlphaBetaPrunning {
         if (successors.size() == 0) {
             return true;
         }
-        if (Function.evaluate(game, Player.BLACK) >= 10000 || Function.evaluate(game, Player.WHITE) >= 10000) {
+        if (Function.evaluate(game, Player.OPLAYER) >= 10000 || Function.evaluate(game, Player.XPLAYER) >= 10000) {
             return true;
         }
         return false;
     }
 
     public static Pair evaluateState(GameState game) {
-        int black = Function.evaluate(game, Player.BLACK);
-        int white = Function.evaluate(game, Player.WHITE);
-        if (game.getCurrentPlayer() == Player.BLACK) {
+        int black = Function.evaluate(game, Player.OPLAYER);
+        int white = Function.evaluate(game, Player.XPLAYER);
+        if (game.getCurrentPlayer() == Player.OPLAYER) {
             black *= 2;
         } else {
             white *= 2;

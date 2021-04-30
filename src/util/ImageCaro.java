@@ -16,8 +16,6 @@ public class ImageCaro {
 		try {
 			image = ImageIO.read(file);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			//e.printStackTrace();
 		}
 		return image;
 	}

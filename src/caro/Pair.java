@@ -27,7 +27,6 @@ public class Pair implements Comparable<Pair>{
 
 	@Override
 	public int compareTo(Pair comparePair) {
-		// TODO Auto-generated method stub
 		return comparePair.getValue() - this.value;
 	}
 
