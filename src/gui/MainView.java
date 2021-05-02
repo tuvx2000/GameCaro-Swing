@@ -2,12 +2,18 @@ package gui;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.Executor;
 import javax.swing.*;
 
 import ai.AlphaBetaPrunning;
 import caro.*;
+import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import util.Function;
 
 public class MainView extends JPanel implements MouseListener, MouseMotionListener {
@@ -17,7 +23,6 @@ public class MainView extends JPanel implements MouseListener, MouseMotionListen
     public static final int SIZEY = 16;
     public static final int OFFSET = 30;
     private static final int SQUAD = 32;
-   // public static final int DEPTH = 2;
     private static GameState gameState;
     private int victory= -1;
 
@@ -30,7 +35,12 @@ public class MainView extends JPanel implements MouseListener, MouseMotionListen
         JPanel pannel = new JPanel();
         JPanel bottomPannel = new JPanel();
 
+////////////////////////////////////// this is a DB
 
+
+
+
+        ////////////////////////////
 
 
         bottomPannel.setBackground(Color.gray);
@@ -62,6 +72,8 @@ public class MainView extends JPanel implements MouseListener, MouseMotionListen
             @Override
             public void actionPerformed(ActionEvent e) {
                 gameState.GoBack();
+                if(TYPE == 0)
+                    gameState.GoBack();
                 frame.repaint();
             }
         });
@@ -73,8 +85,49 @@ public class MainView extends JPanel implements MouseListener, MouseMotionListen
         c.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                gameState.Reset();
-                frame.repaint();
+                ////////
+                SQLServerDataSource ds = new SQLServerDataSource();
+                ds.setUser("sa");
+                ds.setPassword("123456");
+                ds.setServerName("TUVX2000\\SQLEXPRESS");
+                ds.setPortNumber(1433);
+                ds.setDatabaseName("QLCR");
+                Connection conn;
+
+                try {
+                    conn = ds.getConnection();
+                    Statement statement = conn.createStatement();
+
+
+                    //   statement.execute("UPDATE contacts SET phone = 02347 WHERE CONVERT(VARCHAR, email) = 'tuhuhu'");
+
+                    //statement.execute("DELETE  FROM contacts WHERE CONVERT(VARCHAR, email) = 'tuhaha'");
+
+                    statement.execute("DELETE  FROM Square");
+                    statement.execute("DELETE  FROM SavedGame");
+
+
+                    ArrayList<Piece> move = gameState.getMove();
+
+                    statement.execute("INSERT INTO SavedGame (type)" +
+                            "VALUES("+TYPE+")");
+
+
+
+                    for (int i = 0 ; i < move.size() ; i++){
+                        int hold = (move.get(i).getSquare().isMark() == true )? 1 : 0;
+                        statement.execute("INSERT INTO Square (x,y,isMark)" +
+                              "VALUES("
+                            +move.get(i).getSquare().getCoordX()+","+
+                            move.get(i).getSquare().getCoordY()+","+
+                                hold+")");
+                    }
+
+                    statement.close();
+                    conn.close();
+                } catch (SQLException throwables ) { throwables.printStackTrace(); }
+                /////////
+
             }
         });
         JButton d =new JButton("Resume");
@@ -83,9 +136,60 @@ public class MainView extends JPanel implements MouseListener, MouseMotionListen
             @Override
             public void actionPerformed(ActionEvent e) {
                 gameState.Reset();
+
+
+                SQLServerDataSource ds = new SQLServerDataSource();
+                ds.setUser("sa");
+                ds.setPassword("123456");
+                ds.setServerName("TUVX2000\\SQLEXPRESS");
+                ds.setPortNumber(1433);
+                ds.setDatabaseName("QLCR");
+                Connection conn;
+
+                try {
+                    conn = ds.getConnection();
+                    Statement statement = conn.createStatement();
+
+
+
+                    statement.execute("SELECT * FROM Square");
+                    ResultSet result = statement.getResultSet();
+                    int j = 0;
+                    while (result.next()){
+                        j++;
+                        Player hold0 = (j % 2 == 1) ? Player.OPLAYER : Player.XPLAYER;
+                        Square hold1 = new Square(result.getInt("x"),result.getInt("y"),
+                                (result.getInt("isMark") == 0) ? false : true);
+              //          System.out.println(hold1.isMark());
+                        Piece hold2 = new Piece(hold1,hold0);
+                        gameState.setCurrentPlayer(hold0);
+                        gameState.addSquare(hold1);
+                //        System.out.println(hold0);
+                    }
+
+                    gameState.setCurrentPlayer((gameState.getMove().size() % 2 == 0) ? Player.OPLAYER:Player.XPLAYER);
+
+
+
+                    ResultSet typeGame = statement.executeQuery("SELECT * FROM SavedGame");
+                    typeGame.next();
+                    TYPE = typeGame.getInt("TYPE");
+
+
+               //     System.out.println(j);
+
+
+
+
+                    statement.close();
+                    conn.close();
+                } catch (SQLException throwables ) { throwables.printStackTrace(); }
+
                 frame.repaint();
 
+
             }
+
         });
 
 
@@ -196,9 +300,9 @@ public class MainView extends JPanel implements MouseListener, MouseMotionListen
                     SQUAD * piece.getSquare().getCoordY() + OFFSET, this);
 
 
-            System.out.println("Nguoi choi "+ piece.getPlayer().getHashValue()+" :("  + piece.getSquare().getCoordX()+ ";" + piece.getSquare().getCoordY() + ")");
+         //   System.out.println("Nguoi choi "+ piece.getPlayer().getHashValue()+" :("  + piece.getSquare().getCoordX()+ ";" + piece.getSquare().getCoordY() + ")");
         }
-        System.out.println(move.size());
+    //    System.out.println(move.size());
 
 
 
@@ -211,21 +315,31 @@ public class MainView extends JPanel implements MouseListener, MouseMotionListen
             case 1:
                 g.setFont(new Font(defaultFont.getFontName(), 1, 30));
                 g.drawString("Player 1 WINS!",580/2, 570);
+                try {
+                    gameState.setCurrentPlayer(null);
+                }catch (Exception e){
+                    System.out.println("Something went 1!!!!!!!!");
+                }
                 g.setFont(defaultFont);
                 victory = -1;
                 break;
             case 2:
                 g.setFont(new Font(defaultFont.getFontName(), 1, 30));
                 g.drawString("Player 2 WINS!", 580/2, 570);
+                try {
+                    gameState.setCurrentPlayer(null);
+                }catch (Exception e){
+                    System.out.println("Something wrong 2!!!!!!!!!");
+                }
                 g.setFont(defaultFont);
                 victory = -1;
                 break;
-            case 0:
-                g.setFont(new Font(defaultFont.getFontName(), 1, 30));
-                g.drawString("FULL roi!", 580/2, 570);
-                g.setFont(defaultFont);
-                victory = -1;
-                break;
+//            case 0:
+//                g.setFont(new Font(defaultFont.getFontName(), 1, 30));
+//                g.drawString("Game is ENDED!", 580/2, 570);
+//                g.setFont(defaultFont);
+//                victory = -1;
+//                break;
             default:
                 g.setFont(new Font(defaultFont.getFontName(), 1, 30));
                 g.drawString("Playing Mode:" + ((TYPE == 1)? "Human" : "Computer"), 380/2, 570);
@@ -248,7 +362,7 @@ public class MainView extends JPanel implements MouseListener, MouseMotionListen
     public void mousePressed(MouseEvent e) {
         int coordX = (e.getX() - OFFSET) / SQUAD;
         int coordY = (e.getY() - OFFSET) / SQUAD;
-        System.out.println(coordX + " " + coordY);
+        System.out.println(coordX + " " + coordY + " " + gameState.getCurrentPlayer().toString());
         Square square = new Square(coordX, coordY,true);
 
 
@@ -258,6 +372,7 @@ public class MainView extends JPanel implements MouseListener, MouseMotionListen
                 gameState.addSquare(square);
 
                 checkwin();
+
                  //////////////////////////////////////////////////////////
                 if (TYPE == 0){
                     Pair pair = AlphaBetaPrunning.search(gameState);
@@ -281,6 +396,7 @@ public class MainView extends JPanel implements MouseListener, MouseMotionListen
             if (board[coordX][coordY] == 0) {
                 gameState.addSquare(square);
                 checkwin();
+
             }
 
         }
@@ -291,6 +407,7 @@ public class MainView extends JPanel implements MouseListener, MouseMotionListen
     }
 
     public void checkwin(){
+
         if (Function.evaluate(gameState, Player.XPLAYER) >= 10000) {
             victory = 2;
         }
